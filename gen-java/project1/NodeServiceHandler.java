@@ -5,32 +5,92 @@ import java.security.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.print.DocFlavor.STRING;
+
 
 public class NodeServiceHandler implements NodeService.Iface {
 
-  public class  NodeInfo{
+  public static class  NodeInfo{
     String address = "";
     int port = 0;
     int hash = 0;
   }
 
-  ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
+  private static ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
+  
+  private static String DHTList;
+  private static int maxNumNodes = 4;
+  private static NodeName myName;
+  private static NodeName predecessor;
+  private static int m;
+  private static FingerTable[] fingerTable;
+  private static int numDHT;
+  
 
-  public NodeInfo strToNodeInfo(String input)
+  
+  public static void setConfig(String dht_list, String address, int port){
+	  System.out.println("1Entering setConfig of service handler...");
+	  DHTList = dht_list;
+	  ListOfNodes = strToNodeInfoArray(DHTList);
+	  
+	  myName = new NodeName(address, port, 0);
+	  
+	  //myName.setIP(address);
+	  //myName.setPort(port);
+	  
+	  System.out.println("2Entering setConfig of service handler...");
+	  
+	  myName.setID(findmyID(ListOfNodes));
+	  
+	  
+	  //updating fingertable related values
+	  m = (int) Math.ceil(Math.log(maxNumNodes) / Math.log(2));
+      fingerTable = new FingerTable[m+1];
+      numDHT = (int)Math.pow(2,m);
+      
+      
+
+	  
+  }
+  
+  private static int findmyID(ArrayList<NodeInfo> nodeList){
+	  
+	  int ID=-1;
+	  //NodeInfo temp_node; 
+	  
+	  for(int i=0; i< nodeList.size(); i++){
+		  System.out.println("iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).address.compareTo(myName.getIP()));
+		  if((myName.getPort() == nodeList.get(i).port) && nodeList.get(i).address.equals(myName.getIP())){
+			  System.out.println("My ID found is "+ nodeList.get(i).hash);
+			  ID = nodeList.get(i).hash;
+			  break;
+		  }
+		  else{
+			  System.out.println("else iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort());
+		  }
+		  
+	  }
+	  
+	  return ID;
+	  
+  }
+
+
+  public static NodeInfo strToNodeInfo(String input)
   {
     String data[] = input.split(":");
     NodeInfo newNo = new NodeInfo();
-    newNo.address = data[0];
+    newNo.address = data[0].trim();
     newNo.port = Integer.parseInt(data[1]);
     newNo.hash = Integer.parseInt(data[2]);
 
     return newNo;
   }
 
-  public ArrayList<NodeInfo> strToNodeInfoArray(String input)
+  public static ArrayList<NodeInfo> strToNodeInfoArray(String input)
   {
     ArrayList<NodeInfo> arrN = new ArrayList<NodeInfo>();
-    String data[] = input.split(",");
+    String data[] = input.split("\\,");
     for(int c = 0; c < data.length; c++)
     {
       arrN.add(strToNodeInfo(data[c]));
@@ -75,6 +135,6 @@ public class NodeServiceHandler implements NodeService.Iface {
 
   return false;
  }
-
+ 
 
 }

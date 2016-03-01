@@ -18,7 +18,7 @@ public class FilesClient {
    TTransport SuperNodeTransport;
    TTransport NodeTransport;
 
-   SuperNodeTransport = new TSocket("csel-x29-01", 9090);
+   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
    SuperNodeTransport.open();
 
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);

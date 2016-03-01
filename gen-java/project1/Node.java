@@ -23,14 +23,16 @@ public class Node {
    TServer server = new TSimpleServer(
      new Args(serverTransport).processor(processor));
    
+   System.out.println("Establishing connection with the SuperNode...");
+   
    TTransport SuperNodeTransport;
-   SuperNodeTransport = new TSocket("csel-x29-01", 9090);
+   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
    SuperNodeTransport.open();
-   System.out.println("1Starting the simple server...");
+   
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
    SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
    
-  System.out.println("2Starting the simple server...");
+  System.out.println("Requesting SuperNode for joining DHT through Join Call...");
   String dht_list;
   dht_list = supernodeclient.Join(getHostAddress(),9090); 
   System.out.println("The returned list is "+ dht_list);
@@ -39,10 +41,22 @@ public class Node {
 	   System.out.println("Supernode busy...");
       }
    else{
-	   System.out.println("3Starting the simple server...");
+	   System.out.println("Joining DHT...");
+	   
+	   //Create finger table
+	   
+	          
+       //send DHTList string to the nodeservicehandler
+       NodeServiceHandler.setConfig(dht_list, getHostAddress(),9090);
+       
+	   //for 1 to n
+	   //send DHT request to other nodes 
+	   
 	   supernodeclient.PostJoin(getHostAddress(),9090);
 	   SuperNodeTransport.close();  
 	   
+	   System.out.println("Successfully joined DHT...");
+	   System.out.println("Starting simple NodeServer...");
 	   server.serve();
    }
    
@@ -63,6 +77,8 @@ public class Node {
 			 return null;
 		 }
  }
+ 
+
 
 }
 //Use this for a multithreaded server

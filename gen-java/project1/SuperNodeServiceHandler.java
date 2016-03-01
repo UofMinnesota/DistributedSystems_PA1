@@ -15,7 +15,7 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
   ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
   boolean isBusy = false;
   private Random randomGenerator = new Random();
-  private static int max_keys = 5;
+  private static int max_keys = 4;
   private int num_keys = max_keys; 
 
 
@@ -64,6 +64,8 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
 	  return NodeList;
   }
   else{
+	  
+	  System.out.println("Max number of nodes reached in DHT ....");
 	  return "NACK";
   }
  }
