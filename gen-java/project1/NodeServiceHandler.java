@@ -6,7 +6,20 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.print.DocFlavor.STRING;
+import java.io.*;
+import java.net.*;
 
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServer.Args;
+import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 
 public class NodeServiceHandler implements NodeService.Iface {
 
@@ -25,6 +38,9 @@ public class NodeServiceHandler implements NodeService.Iface {
   private static int m;
   private static FingerTable[] fingerTable;
   private static int numDHT;
+  private Random randomGenerator = new Random();
+  private static int max_keys = 4;
+  private int num_keys = max_keys;
 
   int keyHash(String key)
   {
@@ -123,12 +139,36 @@ public class NodeServiceHandler implements NodeService.Iface {
       return null;}
   }
 
+public int isSuccessor(int hash)
+{
+  return -1;
+}
+
  @Override
  public boolean Write(String Filename, String Contents) throws TException {
   //String NodeList = " ";
 
-  String hash = hashCode(Filename);
+  int hash = keyHash(Filename);
   System.out.println("Filename is"+Filename);
+
+  int succ = isSuccessor(hash);
+  if(succ == -1)
+  {
+    //write locally
+  }
+  else{
+
+
+    TTransport NodeTransport;
+    NodeTransport = new TSocket("localhost", 9090);
+    NodeTransport.open();
+
+    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+    NodeService.Client supernodeclient = new NodeService.Client(NodeProtocol);
+
+   String dht_list;
+   //dht_list = supernodeclient.Join(getHostAddress(),9090);
+  }
 
   return false;
  }
