@@ -176,9 +176,32 @@ public int isSuccessor(int hash)
 
  @Override
  public String Read(String Filename) throws TException {
-  String NodeList = " ";
+   //String NodeList = " ";
 
-  return NodeList;
+   int hash = keyHash(Filename);
+   System.out.println("Filename is"+Filename);
+
+   int succ = isSuccessor(hash);
+   if(succ == -1)
+   {
+     //read locally
+     return "works!";
+   }
+   else{
+
+
+     TTransport NodeTransport;
+     NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
+     NodeTransport.open();
+
+     TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+     NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+     return nodeclient.Read(Filename);
+   }
+
+   //return false;
  }
 
  @Override
