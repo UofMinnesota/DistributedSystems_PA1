@@ -16,14 +16,15 @@ public class NodeServiceHandler implements NodeService.Iface {
          }
           return sb.toString();
       } catch (java.security.NoSuchAlgorithmException e) {
-      }
-      return null;
+      
+      return null;}
   }
 
  @Override
  public boolean Write(String Filename, String Contents) throws TException {
   //String NodeList = " ";
   String md5Hash = MD5(Filename);
+  System.out.println("Filename is"+Filename);
 
 
   return false;

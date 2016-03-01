@@ -1,5 +1,8 @@
 package project1;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -15,18 +18,19 @@ public class FilesClient {
    TTransport SuperNodeTransport;
    TTransport NodeTransport;
 
-   SuperNodeTransport = new TSocket("localhost", 9090);
+   SuperNodeTransport = new TSocket("csel-x29-01", 9090);
    SuperNodeTransport.open();
 
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
    SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
    
    NodeTransport = new TSocket("localhost", 9091);
-   SuperNodeTransport.open();
+   NodeTransport.open();
 
    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
+   nodeclient.Write("ABC", "def");
 
    SuperNodeTransport.close();
    NodeTransport.close();
@@ -38,5 +42,15 @@ public class FilesClient {
    x.printStackTrace();
   }
  }
+ 
+ private static String getHostAddress(){
+	 try {
+		   InetAddress addr = InetAddress.getLocalHost();            
+		   	return (addr.getHostAddress());
+		 } catch (UnknownHostException e) {
+			 return null;
+		 }
+ }
+
 
 }

@@ -15,6 +15,8 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
   ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
   boolean isBusy = false;
   private Random randomGenerator = new Random();
+  private static int max_keys = 5;
+  private int num_keys = max_keys; 
 
 
   int keyHash(String key)
@@ -27,25 +29,43 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
           n = (int)key.charAt(i);
           u += i*n%31;
       }
-      return u%139;
+      return u%max_keys;
   }
 
  @Override
  public String Join(String IP, int Port) throws TException {
+  
+
+	 
+	 System.out.println("Node "+ IP+" : "+Port+" requests for joining DHT...");
   if(isBusy)
   {
     return "NACK";
   }
   String NodeList = " ";
-
-  for(int x = 0; x < ListOfNodes.size(); x++)
+  
+  if(num_keys > 0)
   {
-    NodeList += ListOfNodes.get(x).address + ":" + String.valueOf(ListOfNodes.get(x).port) + ":" + String.valueOf(ListOfNodes.get(x).hash) + ",";
+	   NodeInfo newNode = new NodeInfo();
+	   newNode.address = IP;
+	   newNode.port = Port;
+	   newNode.hash = keyHash(IP+":"+String.valueOf(Port));
+
+	   ListOfNodes.add(newNode);
+
+	  for(int x = 0; x < ListOfNodes.size(); x++)
+	  {
+		  NodeList += ListOfNodes.get(x).address + ":" + String.valueOf(ListOfNodes.get(x).port) + ":" + String.valueOf(ListOfNodes.get(x).hash) + ",";
+	  }
+
+	  isBusy = true;
+	  num_keys--;
+
+	  return NodeList;
   }
-
-  isBusy = true;
-
-  return NodeList;
+  else{
+	  return "NACK";
+  }
  }
 
  @Override
@@ -57,12 +77,6 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
 
  @Override
  public boolean PostJoin(String IP, int Port) throws TException {
-   NodeInfo newNode = new NodeInfo();
-   newNode.address = IP;
-   newNode.port = Port;
-   newNode.hash = keyHash(IP+":"+String.valueOf(Port));
-
-   ListOfNodes.add(newNode);
 
    isBusy = false;
 
