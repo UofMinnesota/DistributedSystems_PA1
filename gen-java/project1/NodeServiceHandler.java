@@ -155,22 +155,23 @@ public int isSuccessor(int hash)
   if(succ == -1)
   {
     //write locally
+    return true;
   }
   else{
 
 
     TTransport NodeTransport;
-    NodeTransport = new TSocket("localhost", 9090);
+    NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
     NodeTransport.open();
 
     TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
-    NodeService.Client supernodeclient = new NodeService.Client(NodeProtocol);
 
-   String dht_list;
-   //dht_list = supernodeclient.Join(getHostAddress(),9090);
+    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+    return nodeclient.Write(Filename, Contents);
   }
 
-  return false;
+  //return false;
  }
 
  @Override
