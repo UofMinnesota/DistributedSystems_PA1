@@ -17,7 +17,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   }
 
   private static ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
-  
+
   private static String DHTList;
   private static int maxNumNodes = 4;
   private static NodeName myName;
@@ -25,39 +25,50 @@ public class NodeServiceHandler implements NodeService.Iface {
   private static int m;
   private static FingerTable[] fingerTable;
   private static int numDHT;
-  
 
-  
+  int keyHash(String key)
+  {
+      int k = (int)key.length();
+      int u = 0,n = 0;
+
+      for (int i=0; i<k; i++)
+      {
+          n = (int)key.charAt(i);
+          u += i*n%31;
+      }
+      return u%max_keys;
+  }
+
   public static void setConfig(String dht_list, String address, int port){
 	  System.out.println("1Entering setConfig of service handler...");
 	  DHTList = dht_list;
 	  ListOfNodes = strToNodeInfoArray(DHTList);
-	  
+
 	  myName = new NodeName(address, port, 0);
-	  
+
 	  //myName.setIP(address);
 	  //myName.setPort(port);
-	  
+
 	  System.out.println("2Entering setConfig of service handler...");
-	  
+
 	  myName.setID(findmyID(ListOfNodes));
-	  
-	  
+
+
 	  //updating fingertable related values
 	  m = (int) Math.ceil(Math.log(maxNumNodes) / Math.log(2));
       fingerTable = new FingerTable[m+1];
       numDHT = (int)Math.pow(2,m);
-      
-      
 
-	  
+
+
+
   }
-  
+
   private static int findmyID(ArrayList<NodeInfo> nodeList){
-	  
+
 	  int ID=-1;
-	  //NodeInfo temp_node; 
-	  
+	  //NodeInfo temp_node;
+
 	  for(int i=0; i< nodeList.size(); i++){
 		  System.out.println("iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).address.compareTo(myName.getIP()));
 		  if((myName.getPort() == nodeList.get(i).port) && nodeList.get(i).address.equals(myName.getIP())){
@@ -68,11 +79,11 @@ public class NodeServiceHandler implements NodeService.Iface {
 		  else{
 			  System.out.println("else iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort());
 		  }
-		  
+
 	  }
-	  
+
 	  return ID;
-	  
+
   }
 
 
@@ -115,9 +126,9 @@ public class NodeServiceHandler implements NodeService.Iface {
  @Override
  public boolean Write(String Filename, String Contents) throws TException {
   //String NodeList = " ";
-  String md5Hash = MD5(Filename);
-  System.out.println("Filename is"+Filename);
 
+  String hash = hashCode(Filename);
+  System.out.println("Filename is"+Filename);
 
   return false;
  }
@@ -135,6 +146,6 @@ public class NodeServiceHandler implements NodeService.Iface {
 
   return false;
  }
- 
+
 
 }
