@@ -28,7 +28,7 @@ public class Node {
 
   return randomNum;
 }
-static boolean USE_LOCAL = true;
+static boolean USE_LOCAL = false;
  public static void StartsimpleServer(NodeService.Processor<NodeServiceHandler> processor) {
   try {
 
@@ -60,14 +60,32 @@ static boolean USE_LOCAL = true;
    else{
 	   System.out.println("Joining DHT...");
 
-	   //Create finger table
+	   ArrayList<NodeName> ListOfNodes = new ArrayList<NodeName>();
+	   NodeName myName;
 
 
        //send DHTList string to the nodeservicehandler
        NodeServiceHandler.setConfig(dht_list, getHostAddress(),nodePort);
+       myName = NodeServiceHandler.getMyName();
+       ListOfNodes = NodeServiceHandler.getListOfNodes();
+       
 
 	   //for 1 to n
 	   //send DHT request to other nodes
+       for(int i=0;i<ListOfNodes.size();i++){
+    	   if(!(ListOfNodes.get(i).getIP().equals(myName.getIP()) && ListOfNodes.get(i).getPort() == myName.getPort())){
+    		   
+    		   System.out.println("Connecting to machine.."+ListOfNodes.get(i).getIP()+"..and port.."+ListOfNodes.get(i).getPort()+".. to update DHT");
+    		   TTransport NodeTransport;
+    		   NodeTransport = new TSocket(ListOfNodes.get(i).getIP(), ListOfNodes.get(i).getPort());
+    		   NodeTransport.open();
+    		   TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+    		   NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+    		   nodeclient.UpdateDHT(dht_list);
+    		   NodeTransport.close();
+    		   
+    	   }
+       }
 
 	   supernodeclient.PostJoin(getHostAddress(),nodePort);
 	   SuperNodeTransport.close();
