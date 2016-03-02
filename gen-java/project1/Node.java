@@ -26,7 +26,7 @@ public class Node {
    System.out.println("Establishing connection with the SuperNode...");
 
    TTransport SuperNodeTransport;
-   SuperNodeTransport = new TSocket("localhost", 9090);
+   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
    SuperNodeTransport.open();
 
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);

@@ -40,13 +40,38 @@ public class FingerTable {
 			return this.successor;
 		}
 		
-		public void findSuccessor(NodeName N, ArrayList<NodeName> ListOfNodes){
+		public void findSuccessor(NodeName N, ArrayList<NodeName> ListOfNodes,int numDHT){
+			
+			boolean found=false;
+			//int numDHT = (int)Math.pow(2,ListOfNodes.size());
+			
+			System.out.println("NumDHT is "+numDHT);
 			
 			for(int i=0; i< ListOfNodes.size();i++){
-				System.out.println("Node ID is "+ ListOfNodes.get(i).getID()+"My start ID is "+start);
+				System.out.println("Node ID is "+ ListOfNodes.get(i).getID()+" My start ID is "+start);
 				if(ListOfNodes.get(i).getID() >= start ){
 					successor = ListOfNodes.get(i);
+					found=true;
 					break;
+				}
+				else{
+					System.out.println("Succesor not found ID is "+ ListOfNodes.get(i).getID() );
+				}
+			}
+			
+			if(found == false){
+				if(start/numDHT > 0){
+				  for(int i=0; i< ListOfNodes.size();i++){
+					if(ListOfNodes.get(i).getID() >= start%numDHT ){
+						successor = ListOfNodes.get(i);
+						found=true;
+						break;
+					}
+				  }
+				}
+				else{
+					successor = ListOfNodes.get(0);
+					System.out.println("Successor ID is "+successor.getID());
 				}
 			}
 			

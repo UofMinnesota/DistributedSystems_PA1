@@ -186,7 +186,7 @@ public class NodeServiceHandler implements NodeService.Iface {
       }
       else {
           for (int i = 1; i <= m; i++) {
-              fingerTable[i].findSuccessor(myName, ListOfNodes);
+              fingerTable[i].findSuccessor(myName, ListOfNodes, numDHT);
           }
       }
   }
