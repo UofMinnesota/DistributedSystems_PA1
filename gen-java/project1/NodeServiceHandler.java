@@ -41,6 +41,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   }
 
   private static ArrayList<NodeName> ListOfNodes = new ArrayList<NodeName>();
+  Map<String, String> files = new HashMap<String, String>();
   
   private static String DHTList;
   private static int maxNumNodes = 8;
