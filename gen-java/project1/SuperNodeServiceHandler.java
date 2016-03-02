@@ -15,7 +15,7 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
   ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
   boolean isBusy = false;
   private Random randomGenerator = new Random();
-  private static int max_keys = 4;
+  private static int max_keys = 8;
   private int num_keys = max_keys; 
 
 

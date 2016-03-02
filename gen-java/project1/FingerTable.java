@@ -1,5 +1,7 @@
 package project1;
 
+import java.util.ArrayList;
+
 public class FingerTable {
 		
 	private int start;
@@ -36,6 +38,18 @@ public class FingerTable {
 
 		public NodeName getSuccessor(){
 			return this.successor;
+		}
+		
+		public void findSuccessor(NodeName N, ArrayList<NodeName> ListOfNodes){
+			
+			for(int i=0; i< ListOfNodes.size();i++){
+				System.out.println("Node ID is "+ ListOfNodes.get(i).getID()+"My start ID is "+start);
+				if(ListOfNodes.get(i).getID() >= start ){
+					successor = ListOfNodes.get(i);
+					break;
+				}
+			}
+			
 		}
 
 		public FingerTable(){

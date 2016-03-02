@@ -4,22 +4,31 @@ import org.apache.thrift.TException;
 import java.security.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.print.DocFlavor.STRING;
 
 
 public class NodeServiceHandler implements NodeService.Iface {
 
-  public static class  NodeInfo{
+  public static class  NodeInfo implements Comparable<NodeInfo>{
     String address = "";
     int port = 0;
     int hash = 0;
+    
+ 
+    public int compareTo(NodeInfo N) {
+        return Integer.compare(hash, N.hash);
+    }
+
+    
   }
 
-  private static ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
+  private static ArrayList<NodeName> ListOfNodes = new ArrayList<NodeName>();
   
   private static String DHTList;
-  private static int maxNumNodes = 4;
+  private static int maxNumNodes = 8;
   private static NodeName myName;
   private static NodeName predecessor;
   private static int m;
@@ -31,9 +40,10 @@ public class NodeServiceHandler implements NodeService.Iface {
   public static void setConfig(String dht_list, String address, int port){
 	  System.out.println("1Entering setConfig of service handler...");
 	  DHTList = dht_list;
-	  ListOfNodes = strToNodeInfoArray(DHTList);
+	  ListOfNodes = strToNodeNameArray(DHTList);
 	  
 	  myName = new NodeName(address, port, 0);
+	  predecessor = new NodeName("NA", -1, -1);
 	  
 	  //myName.setIP(address);
 	  //myName.setPort(port);
@@ -45,28 +55,31 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  
 	  //updating fingertable related values
 	  m = (int) Math.ceil(Math.log(maxNumNodes) / Math.log(2));
+	  System.out.println("Value of m is "+ m);
       fingerTable = new FingerTable[m+1];
       numDHT = (int)Math.pow(2,m);
       
+      findPredecessor();
+      buildFingerTable();
       
-
-	  
+      printFingerTable();
+      
   }
   
-  private static int findmyID(ArrayList<NodeInfo> nodeList){
+  private static int findmyID(ArrayList<NodeName> nodeList){
 	  
 	  int ID=-1;
-	  //NodeInfo temp_node; 
+	  //NodeName temp_node; 
 	  
 	  for(int i=0; i< nodeList.size(); i++){
-		  System.out.println("iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).address.compareTo(myName.getIP()));
-		  if((myName.getPort() == nodeList.get(i).port) && nodeList.get(i).address.equals(myName.getIP())){
-			  System.out.println("My ID found is "+ nodeList.get(i).hash);
-			  ID = nodeList.get(i).hash;
+		  System.out.println("iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).getIP().compareTo(myName.getIP()));
+		  if((myName.getPort() == nodeList.get(i).getPort()) && nodeList.get(i).getIP().equals(myName.getIP())){
+			  System.out.println("My ID found is "+ nodeList.get(i).getID());
+			  ID = nodeList.get(i).getID();
 			  break;
 		  }
 		  else{
-			  System.out.println("else iterating over the list..."+ nodeList.get(i).address + " " +nodeList.get(i).port + " " + nodeList.get(i).hash + " " + myName.getIP() + " " + myName.getPort());
+			  System.out.println("else iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort());
 		  }
 		  
 	  }
@@ -74,26 +87,109 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  return ID;
 	  
   }
-
-
-  public static NodeInfo strToNodeInfo(String input)
+  
+  private static void findPredecessor(){
+	    
+	  Collections.sort(ListOfNodes);
+	  
+	  for(int i=0;i<ListOfNodes.size();i++){
+		  System.out.println("Array list sorted is" + ListOfNodes.get(i).getIP() + " " +ListOfNodes.get(i).getPort() + " " + ListOfNodes.get(i).getID() + " ");
+	  }
+	  
+	  //If there is only one node to the system the predecessor is the same node
+	  if(ListOfNodes.size() == 1){
+		  System.out.println("Only one node in the system...");
+		  predecessor=myName;
+	  }
+	  //If there are multiple nodes, then predecessor is the previous element in the array
+	  else{
+		  
+		  int myLocation=0;
+		  
+		  for(int i=0;i<ListOfNodes.size();i++){
+			  if((myName.getPort() == ListOfNodes.get(i).getPort()) && ListOfNodes.get(i).getIP().equals(myName.getIP()) && (myName.getID() == ListOfNodes.get(i).getID())){
+				  System.out.println("Found the ID...");
+				  myLocation = i;
+				  break;
+			  }
+		  }
+		  
+		  if(myLocation == 0){
+			  predecessor.setIP(ListOfNodes.get(ListOfNodes.size()-1).getIP());
+			  predecessor.setID(ListOfNodes.get(ListOfNodes.size()-1).getID());
+			  predecessor.setPort(ListOfNodes.get(ListOfNodes.size()-1).getPort());
+		  }
+		  else{
+			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).address);
+			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).hash);
+			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).port);
+			  System.out.println("Location is "+ myLocation);
+			  //NodeName N = ListOfNodes.get(myLocation-1);
+			  predecessor.setIP(ListOfNodes.get(myLocation-1).getIP());
+			  predecessor.setID(ListOfNodes.get(myLocation-1).getID());
+			  predecessor.setPort(ListOfNodes.get(myLocation-1).getPort());
+		  }
+		  
+	  }
+	  
+  }
+  
+  private static void buildFingerTable(){
+	  
+	  Collections.sort(ListOfNodes);
+	  
+	  for(int i = 1; i <= m ; i++){
+		  fingerTable[i] = new FingerTable();
+		  fingerTable[i].setStart((myName.getID() + (int)Math.pow(2,i-1)) % numDHT);
+	  }
+	  
+	  for (int i = 1; i < m; i++) {
+          fingerTable[i].setInterval(fingerTable[i].getStart(),fingerTable[i+1].getStart()); 
+      }
+      fingerTable[m].setInterval(fingerTable[m].getStart(),fingerTable[1].getStart());
+	  
+      if (predecessor.getID() == myName.getID()) { //if predecessor is same as my ID -> only node in DHT
+          for (int i = 1; i <= m; i++) {
+              fingerTable[i].setSuccessor(myName);
+          }
+          System.out.println("Done, all finger tablet set as myName (only node in DHT)");
+      }
+      else {
+          for (int i = 1; i <= m; i++) {
+              fingerTable[i].findSuccessor(myName, ListOfNodes);
+          }
+      }
+  }
+  
+  public static void printFingerTable(){
+	  
+	  System.out.println("  |  "+"Start"+"  |  "+"Interval Begin"+"  |  "+"Interval End"+"  |  "+"Successor"+"  |  ");
+	  for(int i = 1; i <= m ; i++){
+		  
+		System.out.println("  |  "+fingerTable[i].getStart()+"  |  "+fingerTable[i].getIntervalBegin()+"  |  "+fingerTable[i].getIntervalEnd()+"  |  "+fingerTable[i].getSuccessor().getID()+"  |  ");
+	  }
+	  
+  }
+  
+  
+  public static NodeName strToNodeName(String input)
   {
     String data[] = input.split(":");
-    NodeInfo newNo = new NodeInfo();
-    newNo.address = data[0].trim();
-    newNo.port = Integer.parseInt(data[1]);
-    newNo.hash = Integer.parseInt(data[2]);
+    NodeName newNo = new NodeName(data[0].trim(),Integer.parseInt(data[1]),Integer.parseInt(data[2]));
+    //newNo.setIP(data[0].trim());
+    //newNo.setPort(Integer.parseInt(data[1]));
+    //newNo.setID(Integer.parseInt(data[2]));
 
     return newNo;
   }
 
-  public static ArrayList<NodeInfo> strToNodeInfoArray(String input)
+  public static ArrayList<NodeName> strToNodeNameArray(String input)
   {
-    ArrayList<NodeInfo> arrN = new ArrayList<NodeInfo>();
+    ArrayList<NodeName> arrN = new ArrayList<NodeName>();
     String data[] = input.split("\\,");
     for(int c = 0; c < data.length; c++)
     {
-      arrN.add(strToNodeInfo(data[c]));
+      arrN.add(strToNodeName(data[c]));
     }
     return arrN;
   }

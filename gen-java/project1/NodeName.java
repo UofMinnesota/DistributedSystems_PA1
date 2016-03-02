@@ -1,11 +1,20 @@
 package project1;
 
-public class NodeName {
+
+import java.util.Collections;
+import java.util.Comparator;
+
+public class NodeName implements Comparable<NodeName>{
 	
 	private String myIP;
 	private int myPort;
 	private int myID;
 
+	public int compareTo(NodeName N) {
+	        return Integer.compare(myID, N.myID);
+	   }
+
+	
 	public void setID (int id) {
 		this.myID = id;
 	}
