@@ -18,34 +18,36 @@ public class FilesClient {
    TTransport SuperNodeTransport;
    TTransport NodeTransport;
 
-   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
+   SuperNodeTransport = new TSocket("localhost", 9090);
    SuperNodeTransport.open();
 
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
    SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
-   
+
    NodeTransport = new TSocket("localhost", 9091);
    NodeTransport.open();
 
    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
-   nodeclient.Write("ABC", "def");
+   nodeclient.Write("ABC", "def test sss");
+
+    System.out.println(nodeclient.Read("ABC"));
 
    SuperNodeTransport.close();
    NodeTransport.close();
 
   }// catch (TTransportException e) {
    //e.printStackTrace();
-  //} 
+  //}
   catch (TException x) {
    x.printStackTrace();
   }
  }
- 
+
  private static String getHostAddress(){
 	 try {
-		   InetAddress addr = InetAddress.getLocalHost();            
+		   InetAddress addr = InetAddress.getLocalHost();
 		   	return (addr.getHostAddress());
 		 } catch (UnknownHostException e) {
 			 return null;

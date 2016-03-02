@@ -2,13 +2,28 @@ package project1;
 
 import org.apache.thrift.TException;
 import java.security.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Collections;
 import java.util.Comparator;
 
 import javax.print.DocFlavor.STRING;
+import java.io.*;
+import java.net.*;
 
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TServerTransport;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TServer.Args;
+import org.apache.thrift.server.TSimpleServer;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 
 public class NodeServiceHandler implements NodeService.Iface {
 
@@ -34,9 +49,23 @@ public class NodeServiceHandler implements NodeService.Iface {
   private static int m;
   private static FingerTable[] fingerTable;
   private static int numDHT;
-  
+  private Random randomGenerator = new Random();
+  private static int max_keys = 4;
+  private int num_keys = max_keys;
 
-  
+  int keyHash(String key)
+  {
+      int k = (int)key.length();
+      int u = 0,n = 0;
+
+      for (int i=0; i<k; i++)
+      {
+          n = (int)key.charAt(i);
+          u += i*n%31;
+      }
+      return u%max_keys;
+  }
+
   public static void setConfig(String dht_list, String address, int port){
 	  System.out.println("1Entering setConfig of service handler...");
 	  DHTList = dht_list;
@@ -208,21 +237,72 @@ public class NodeServiceHandler implements NodeService.Iface {
       return null;}
   }
 
+public int isSuccessor(int hash)
+{
+  return -1;
+}
+
+
+
  @Override
  public boolean Write(String Filename, String Contents) throws TException {
   //String NodeList = " ";
-  String md5Hash = MD5(Filename);
+
+  int hash = keyHash(Filename);
   System.out.println("Filename is"+Filename);
 
+  int succ = isSuccessor(hash);
+  if(succ == -1)
+  {
+    files.put(Filename, Contents);
 
-  return false;
+    return true;
+  }
+  else{
+
+
+    TTransport NodeTransport;
+    NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
+    NodeTransport.open();
+
+    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+    return nodeclient.Write(Filename, Contents);
+  }
+
+  //return false;
  }
 
  @Override
  public String Read(String Filename) throws TException {
-  String NodeList = " ";
+   //String NodeList = " ";
 
-  return NodeList;
+   int hash = keyHash(Filename);
+   System.out.println("Filename is"+Filename);
+
+   int succ = isSuccessor(hash);
+   if(succ == -1)
+   {
+     //read locally
+     return (files.get(Filename));
+   }
+   else{
+
+
+     TTransport NodeTransport;
+     NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
+     NodeTransport.open();
+
+     TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+     NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+     return nodeclient.Read(Filename);
+   }
+
+   //return false;
  }
 
  @Override
