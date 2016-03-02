@@ -14,19 +14,36 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import java.util.Random;
+import org.apache.thrift.TException;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class Node {
+  public static int randInt(int min, int max) {
 
+
+  Random rand = new Random();
+  int randomNum = rand.nextInt((max - min) + 1) + min;
+
+  return randomNum;
+}
+static boolean USE_LOCAL = true;
  public static void StartsimpleServer(NodeService.Processor<NodeServiceHandler> processor) {
   try {
-   TServerTransport serverTransport = new TServerSocket(9091);
+
+      int nodePort = randInt(9000, 9080);
+   TServerTransport serverTransport = new TServerSocket(nodePort);
    TServer server = new TSimpleServer(
      new Args(serverTransport).processor(processor));
 
    System.out.println("Establishing connection with the SuperNode...");
 
    TTransport SuperNodeTransport;
-   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
+   String supernodeAddr = "csel-x29-10";
+   if(USE_LOCAL) supernodeAddr = "localhost";
+   SuperNodeTransport = new TSocket(supernodeAddr, 9090); // csel-x29-10
+   //SuperNodeTransport = new TSocket("localhost", 9090); //csel-x29-10
    SuperNodeTransport.open();
 
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
@@ -34,7 +51,7 @@ public class Node {
 
   System.out.println("Requesting SuperNode for joining DHT through Join Call...");
   String dht_list;
-  dht_list = supernodeclient.Join(getHostAddress(),9090);
+  dht_list = supernodeclient.Join(getHostAddress(),nodePort);
   System.out.println("The returned list is "+ dht_list);
 
    if(dht_list.equals("NACK")){
@@ -47,12 +64,12 @@ public class Node {
 
 
        //send DHTList string to the nodeservicehandler
-       NodeServiceHandler.setConfig(dht_list, getHostAddress(),9090);
+       NodeServiceHandler.setConfig(dht_list, getHostAddress(),nodePort);
 
 	   //for 1 to n
 	   //send DHT request to other nodes
 
-	   supernodeclient.PostJoin(getHostAddress(),9090);
+	   supernodeclient.PostJoin(getHostAddress(),nodePort);
 	   SuperNodeTransport.close();
 
 	   System.out.println("Successfully joined DHT...");
