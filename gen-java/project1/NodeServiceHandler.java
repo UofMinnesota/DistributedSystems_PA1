@@ -2,6 +2,8 @@ package project1;
 
 import org.apache.thrift.TException;
 import java.security.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,6 +25,8 @@ import org.apache.thrift.transport.TTransportException;
 
 public class NodeServiceHandler implements NodeService.Iface {
 
+
+
   public static class  NodeInfo{
     String address = "";
     int port = 0;
@@ -30,6 +34,8 @@ public class NodeServiceHandler implements NodeService.Iface {
   }
 
   private static ArrayList<NodeInfo> ListOfNodes = new ArrayList<NodeInfo>();
+  Map<String, String> files = new HashMap<String, String>();
+
 
   private static String DHTList;
   private static int maxNumNodes = 4;
@@ -144,6 +150,8 @@ public int isSuccessor(int hash)
   return -1;
 }
 
+
+
  @Override
  public boolean Write(String Filename, String Contents) throws TException {
   //String NodeList = " ";
@@ -154,7 +162,8 @@ public int isSuccessor(int hash)
   int succ = isSuccessor(hash);
   if(succ == -1)
   {
-    //write locally
+    files.put(Filename, Contents);
+
     return true;
   }
   else{
@@ -185,7 +194,7 @@ public int isSuccessor(int hash)
    if(succ == -1)
    {
      //read locally
-     return "works!";
+     return (files.get(Filename));
    }
    else{
 

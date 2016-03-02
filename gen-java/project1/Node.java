@@ -22,44 +22,44 @@ public class Node {
    TServerTransport serverTransport = new TServerSocket(9091);
    TServer server = new TSimpleServer(
      new Args(serverTransport).processor(processor));
-   
+
    System.out.println("Establishing connection with the SuperNode...");
-   
+
    TTransport SuperNodeTransport;
-   SuperNodeTransport = new TSocket("csel-x29-10", 9090);
+   SuperNodeTransport = new TSocket("localhost", 9090);
    SuperNodeTransport.open();
-   
+
    TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
    SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
-   
+
   System.out.println("Requesting SuperNode for joining DHT through Join Call...");
   String dht_list;
-  dht_list = supernodeclient.Join(getHostAddress(),9090); 
+  dht_list = supernodeclient.Join(getHostAddress(),9090);
   System.out.println("The returned list is "+ dht_list);
-   
+
    if(dht_list.equals("NACK")){
 	   System.out.println("Supernode busy...");
       }
    else{
 	   System.out.println("Joining DHT...");
-	   
+
 	   //Create finger table
-	   
-	          
+
+
        //send DHTList string to the nodeservicehandler
        NodeServiceHandler.setConfig(dht_list, getHostAddress(),9090);
-       
+
 	   //for 1 to n
-	   //send DHT request to other nodes 
-	   
+	   //send DHT request to other nodes
+
 	   supernodeclient.PostJoin(getHostAddress(),9090);
-	   SuperNodeTransport.close();  
-	   
+	   SuperNodeTransport.close();
+
 	   System.out.println("Successfully joined DHT...");
 	   System.out.println("Starting simple NodeServer...");
 	   server.serve();
    }
-   
+
   } catch (Exception e) {
    e.printStackTrace();
   }
@@ -68,16 +68,16 @@ public class Node {
  public static void main(String[] args) {
   StartsimpleServer(new NodeService.Processor<NodeServiceHandler>(new NodeServiceHandler()));
  }
- 
+
  private static String getHostAddress(){
 	 try {
-		   InetAddress addr = InetAddress.getLocalHost();            
+		   InetAddress addr = InetAddress.getLocalHost();
 		   	return (addr.getHostAddress());
 		 } catch (UnknownHostException e) {
 			 return null;
 		 }
  }
- 
+
 
 
 }
