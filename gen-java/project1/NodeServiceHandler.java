@@ -96,7 +96,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   }
 
   public static void setConfig(String dht_list, String address, int port){
-	  System.out.println("1Entering setConfig of service handler...");
+	  //System.out.println("1Entering setConfig of service handler...");
 	  DHTList = dht_list;
 	  ListOfNodes = strToNodeNameArray(DHTList);
 	  
@@ -106,14 +106,14 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  //myName.setIP(address);
 	  //myName.setPort(port);
 	  
-	  System.out.println("2Entering setConfig of service handler...");
+	  //System.out.println("2Entering setConfig of service handler...");
 	  
 	  myName.setID(findmyID(ListOfNodes));
 	  
 	  
 	  //updating fingertable related values
 	  m = (int) Math.ceil(Math.log(maxNumNodes) / Math.log(2));
-	  System.out.println("Value of m is "+ m);
+	  //System.out.println("Value of m is "+ m);
       fingerTable = new FingerTable[m+1];
       numDHT = (int)Math.pow(2,m);
       
@@ -132,14 +132,14 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  //NodeName temp_node; 
 	  
 	  for(int i=0; i< nodeList.size(); i++){
-		  System.out.println("iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).getIP().compareTo(myName.getIP()));
+		  //System.out.println("iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).getIP().compareTo(myName.getIP()));
 		  if((myName.getPort() == nodeList.get(i).getPort()) && nodeList.get(i).getIP().equals(myName.getIP())){
 			  System.out.println("My ID found is "+ nodeList.get(i).getID());
 			  ID = nodeList.get(i).getID();
 			  break;
 		  }
 		  else{
-			  System.out.println("else iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort());
+			 // System.out.println("else iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort());
 		  }
 		  
 	  }
