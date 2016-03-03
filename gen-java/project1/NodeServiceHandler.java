@@ -306,8 +306,6 @@ public int isSuccessor(int hash)
 	  if(hash > predecessor.getID() && hash <= myName.getID()){
 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
 		  files.put(Filename, Contents);
-		  System.out.println("File: "+ Filename+ " has been added to this node. Node Details after file addition:");
-		  printFingerTable();
 		  writeComplete = true;
 		  return writeComplete;
 	  }
