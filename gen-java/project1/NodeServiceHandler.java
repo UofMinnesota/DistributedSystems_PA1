@@ -194,10 +194,15 @@ public class NodeServiceHandler implements NodeService.Iface {
 		  System.out.println("My Start Value is "+fingerTable[i].getStart()+" my ID is.."+ myName.getID());
 	  }
 	  
+	  int intEnd ;
 	  for (int i = 1; i < m; i++) {
-          fingerTable[i].setInterval(fingerTable[i].getStart(),fingerTable[i+1].getStart()); 
+		  intEnd = (fingerTable[i+1].getStart()-1)%numDHT;
+		  if(intEnd<0){intEnd=intEnd+numDHT;}
+          fingerTable[i].setInterval(fingerTable[i].getStart(),intEnd); 
       }
-      fingerTable[m].setInterval(fingerTable[m].getStart(),fingerTable[1].getStart());
+	  intEnd = (fingerTable[1].getStart()-1)%numDHT;
+	  if(intEnd<0){intEnd=intEnd+numDHT;}
+      fingerTable[m].setInterval(fingerTable[m].getStart(),intEnd);
 	  
       if (predecessor.getID() == myName.getID()) { //if predecessor is same as my ID -> only node in DHT
           for (int i = 1; i <= m; i++) {
@@ -313,49 +318,45 @@ public int isSuccessor(int hash)
   if(writeComplete == false)
   {
     
-	for(int i=1;i<=m;i++){
-		
-		System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
-		
-	if(myName.getID() < predecessor.getID()){
-		if(hash>=fingerTable[i].getStart() || hash<=fingerTable[i].getSuccessor().getID()){
-			TTransport NodeTransport;
-			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
-		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
-		    NodeTransport.open();
+	  for(int i=m;i>=1;i--){
+		  System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
+		  
+		  if(((fingerTable[i].getIntervalBegin()>fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() || hash<=fingerTable[i].getIntervalEnd())) ||
+				  ((fingerTable[i].getIntervalBegin()<=fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() && hash<=fingerTable[i].getIntervalEnd()))){
+			  	TTransport NodeTransport;
+				System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+			    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+			    NodeTransport.open();
 
-		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+			    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
 
-		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+			    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
-		    boolean returnVal = nodeclient.Write(Filename, Contents);
+			    boolean returnVal = nodeclient.Write(Filename, Contents);
+			    
+			    NodeTransport.close();
+			    
+			    return returnVal;
+		  }
 		    
-		    NodeTransport.close();
-		    
-		    return returnVal;
-		}
 	  }
-	
-	if(myName.getID() >= predecessor.getID()){
-		if(hash>=fingerTable[i].getStart() && hash<=fingerTable[i].getSuccessor().getID()){
-			TTransport NodeTransport;
-			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
-		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
-		    NodeTransport.open();
-
-		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
-
-		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
-
-		    boolean returnVal = nodeclient.Write(Filename, Contents);
-		    
-		    NodeTransport.close();
-		    
-		    return returnVal;
-		}
-	  }
-	}  
 	  
+	  if(hash>fingerTable[m].getSuccessor().getID()){
+		  	TTransport NodeTransport;
+			System.out.println("Request forwarded to.." +fingerTable[m].getSuccessor().getIP()+" "+fingerTable[m].getSuccessor().getPort()+ " "+fingerTable[m].getSuccessor().getID() );
+		    NodeTransport = new TSocket(fingerTable[m].getSuccessor().getIP(), fingerTable[m].getSuccessor().getPort()); //map nodes in the ports
+		    NodeTransport.open();
+
+		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+		    boolean returnVal = nodeclient.Write(Filename, Contents);
+		    
+		    NodeTransport.close();
+		    
+		    return returnVal;
+	  }  
   }
 
   return false;
@@ -400,6 +401,50 @@ public int isSuccessor(int hash)
    if(readComplete == false)
    {
      
+		  for(int i=m;i>=1;i--){
+			  System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
+			  
+			  if(((fingerTable[i].getIntervalBegin()>fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() || hash<=fingerTable[i].getIntervalEnd())) ||
+					  ((fingerTable[i].getIntervalBegin()<=fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() && hash<=fingerTable[i].getIntervalEnd()))){
+				  	TTransport NodeTransport;
+					System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+				    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+				    NodeTransport.open();
+				    
+				    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+		 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+		 		     
+		 		   String readVal = nodeclient.Read(Filename);
+		 		   
+		 		    NodeTransport.close();
+		 		    
+		 		    return readVal;
+			
+			  }
+			    
+		  }
+		  
+		  if(hash>fingerTable[m].getSuccessor().getID()){
+			  	TTransport NodeTransport;
+				System.out.println("Request forwarded to.." +fingerTable[m].getSuccessor().getIP()+" "+fingerTable[m].getSuccessor().getPort()+ " "+fingerTable[m].getSuccessor().getID() );
+			    NodeTransport = new TSocket(fingerTable[m].getSuccessor().getIP(), fingerTable[m].getSuccessor().getPort()); //map nodes in the ports
+			    NodeTransport.open();
+
+			    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+	 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+	 		     
+	 		   String readVal = nodeclient.Read(Filename);
+	 		   
+	 		    NodeTransport.close();
+	 		    
+	 		    return readVal;
+		  } 
+	   
+	/*   
  	for(int i=1;i<=m;i++){
  		
  		System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
@@ -443,7 +488,7 @@ public int isSuccessor(int hash)
  		}
  	}
    }  
- 	  
+ 	  */
    }
    return "File not Found..";
  }

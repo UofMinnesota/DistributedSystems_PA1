@@ -59,7 +59,7 @@ public class FilesClient {
 	 writeFile("ABC","ABC");
 	 writeFile("XXX","XXX");
 	 writeFile("TED","TED");
-	/* writeFile("Accoutre.txt","Accoutre.txt");
+	 writeFile("Accoutre.txt","Accoutre.txt");
 	 writeFile("Acquit.txt","Acquit.txt");
 	 writeFile("Adverb.txt","Adverb.txt");
 	 writeFile("Adversary.txt","Adversary.txt");
@@ -255,12 +255,12 @@ public class FilesClient {
 	 writeFile("Winsome.txt","Winsome.txt");
 	 writeFile("Zealous.txt","Zealous.txt");
 	 writeFile("Zymotic.txt","Zymotic.txt");
-*/
+	 
 	 
 	 readFile("TED");
 	 readFile("XXX");
 	 readFile("ABC");
-	/* readFile("Accoutre.txt");
+	 readFile("Accoutre.txt");
 	 readFile("Acquit.txt");
 	 readFile("Adverb.txt");
 	 readFile("Adversary.txt");
@@ -455,7 +455,7 @@ public class FilesClient {
 	 readFile("Wilful.txt");
 	 readFile("Winsome.txt");
 	 readFile("Zealous.txt");
-	 readFile("Zymotic.txt");*/
+	 readFile("Zymotic.txt");
 
  
  }
