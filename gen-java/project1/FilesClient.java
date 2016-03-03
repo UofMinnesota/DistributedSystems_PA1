@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class FilesClient {
-  static boolean USE_LOCAL = true;
+  static boolean USE_LOCAL = false;
 
   public static class  NodeInfo implements Comparable<NodeInfo>{
     String address = "";
@@ -35,7 +35,7 @@ public class FilesClient {
   {
     String data[] = input.split(":");
     NodeName newNo = new NodeName(data[0].trim(),Integer.parseInt(data[1]),Integer.parseInt(data[2]));
-   
+
     return newNo;
   }
 
@@ -463,7 +463,7 @@ public class FilesClient {
 
  }
 
- 
+
  // Method for getting host address
  private static String getHostAddress(){
 	 try {
@@ -473,7 +473,7 @@ public class FilesClient {
 			 return null;
 		 }
  }
- 
+
 //RMI Method for writing files
 
  public static void writeFile(String FileName, String Contents){
@@ -520,9 +520,9 @@ public class FilesClient {
 		  }
 
  }
- 
- 
-// RMI Method for reading files 
+
+
+// RMI Method for reading files
 public static void readFile(String FileName){
 
 	try {
