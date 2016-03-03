@@ -150,13 +150,13 @@ public class NodeServiceHandler implements NodeService.Iface {
   
   private static void findPredecessor(){
 	    
-	  System.out.println("My ID is before sort in findPredecessor.."+myName.getID());
+	  //System.out.println("My ID is before sort in findPredecessor.."+myName.getID());
 	  Collections.sort(ListOfNodes);
-	  System.out.println("My ID is after sort in findPredecessor.."+myName.getID());
+	  //System.out.println("My ID is after sort in findPredecessor.."+myName.getID());
 	  
-	  for(int i=0;i<ListOfNodes.size();i++){
+	  /*for(int i=0;i<ListOfNodes.size();i++){
 		  System.out.println("Array list sorted is " + ListOfNodes.get(i).getIP() + " " +ListOfNodes.get(i).getPort() + " " + ListOfNodes.get(i).getID() + " ");
-	  }
+	  }*/
 	  
 	  //If there is only one node to the system the predecessor is the same node
 	  if(ListOfNodes.size() == 1){
@@ -170,40 +170,34 @@ public class NodeServiceHandler implements NodeService.Iface {
 		  
 		  for(int i=0;i<ListOfNodes.size();i++){
 			  if((myName.getPort() == ListOfNodes.get(i).getPort()) && ListOfNodes.get(i).getIP().equals(myName.getIP()) && (myName.getID() == ListOfNodes.get(i).getID())){
-				  System.out.println("Found the ID...");
+				  //System.out.println("Found the ID...");
 				  myLocation = i;
 				  break;
 			  }
 		  }
 		  
-		  System.out.println("My ID is.."+myName.getID());
+		  //System.out.println("My ID is.."+myName.getID());
 		  
 		  if(myLocation == 0){
 			  predecessor = new NodeName(ListOfNodes.get(ListOfNodes.size()-1).getIP(), ListOfNodes.get(ListOfNodes.size()-1).getPort(), ListOfNodes.get(ListOfNodes.size()-1).getID());
-			  //predecessor.setID(ListOfNodes.get(ListOfNodes.size()-1).getID());
-			  //predecessor.setPort(ListOfNodes.get(ListOfNodes.size()-1).getPort());
+			  
 		  }
 		  else{
-			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).address);
-			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).hash);
-			  //System.out.println("Address is "+ ListOfNodes.get(myLocation-1).port);
+			  
 			  System.out.println("Location is "+ myLocation);
 			  predecessor = new NodeName(ListOfNodes.get(myLocation-1).getIP(), ListOfNodes.get(myLocation-1).getPort(), ListOfNodes.get(myLocation-1).getID());
-			  //NodeName N = ListOfNodes.get(myLocation-1);
-			  //predecessor.setIP(ListOfNodes.get(myLocation-1).getIP());
-			  //predecessor.setID(ListOfNodes.get(myLocation-1).getID());
-			  //predecessor.setPort(ListOfNodes.get(myLocation-1).getPort());
+			
 		  }
 		  
 	  }
 	  
-	  System.out.println("My ID is.."+myName.getID());
+	  //System.out.println("My ID is.."+myName.getID());
 	  
   }
   
   private static void buildFingerTable(){
 	  
-	  System.out.println("My ID is.."+myName.getID());
+	  //System.out.println("My ID is.."+myName.getID());
 	  
 	  Collections.sort(ListOfNodes);
 	  
@@ -211,7 +205,7 @@ public class NodeServiceHandler implements NodeService.Iface {
 		  fingerTable[i] = new FingerTable();
 		  fingerTable[i].setStart((myName.getID() + (int)Math.pow(2,i-1)) % numDHT);
 		  
-		  System.out.println("My Start Value is "+fingerTable[i].getStart()+" my ID is.."+ myName.getID());
+		  //System.out.println("My Start Value is "+fingerTable[i].getStart()+" my ID is.."+ myName.getID());
 	  }
 	  
 	  int intEnd ;
@@ -236,7 +230,7 @@ public class NodeServiceHandler implements NodeService.Iface {
           }
       }
       
-      System.out.println("My ID is.."+myName.getID());
+      //System.out.println("My ID is.."+myName.getID());
   }
   
   public static void printFingerTable(){
@@ -247,8 +241,10 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  System.out.println("Successor Node: "+fingerTable[1].getSuccessor().getIP()+":"+fingerTable[1].getSuccessor().getPort()+":"+fingerTable[1].getSuccessor().getID());
 	  System.out.println("Number of Files Stored:"+getNumberOfFiles());
 	  System.out.println("List of Files Stored:");
-	  for(int i =0; i<getFileNames().size();i++){
-		  System.out.println(getFileNames().get(i));
+	  ArrayList<String> fileList = getFileNames();
+	  Collections.sort(fileList);
+	  for(int i =0; i<fileList.size();i++){
+		  System.out.println(fileList.get(i));
 	  }
 	  System.out.println("Finger Table after the update:");
 	  System.out.println("  |  "+"Start"+"  |  "+"Interval Begin"+"  |  "+"Interval End"+"  |  "+"Successor"+"  |  ");
@@ -264,10 +260,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   {
     String data[] = input.split(":");
     NodeName newNo = new NodeName(data[0].trim(),Integer.parseInt(data[1]),Integer.parseInt(data[2]));
-    //newNo.setIP(data[0].trim());
-    //newNo.setPort(Integer.parseInt(data[1]));
-    //newNo.setID(Integer.parseInt(data[2]));
-
+  
     return newNo;
   }
 
@@ -327,7 +320,7 @@ public int isSuccessor(int hash)
   
   if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
 	  if(hash > predecessor.getID() && hash <= myName.getID()){
-		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
+		  //System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
 		  files.put(Filename, Contents);
 		  System.out.println("File: "+ Filename+ " has been added to this node. Node Details after file addition:");
 		  printFingerTable();
@@ -411,9 +404,9 @@ public int isSuccessor(int hash)
    if(myName.getID() < predecessor.getID()){ //my ID can be 2 and predecessor ID can be 6
  	  if(hash > predecessor.getID() || hash <= myName.getID()){
  		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
- 		  //files.put(Filename, Contents);
+ 		  
  		  readComplete = true;
- 		  //return writeComplete;
+ 		
  		 System.out.println("File: "+ Filename+ " was tried to read this node. Node Details after file addition:");
 		  printFingerTable();
       if(files.containsKey(Filename)) return (files.get(Filename));
@@ -424,9 +417,9 @@ public int isSuccessor(int hash)
    if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
  	  if(hash > predecessor.getID() && hash <= myName.getID()){
  		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
- 		  //files.put(Filename, Contents);
+ 		  
  		  readComplete = true;
- 		  //return writeComplete;
+ 		  
  		 System.out.println("File: "+ Filename+ " was tried to read this node. Node Details after file addition:");
 		  printFingerTable();
       if(files.containsKey(Filename)) return (files.get(Filename));

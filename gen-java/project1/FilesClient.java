@@ -35,10 +35,7 @@ public class FilesClient {
   {
     String data[] = input.split(":");
     NodeName newNo = new NodeName(data[0].trim(),Integer.parseInt(data[1]),Integer.parseInt(data[2]));
-    //newNo.setIP(data[0].trim());
-    //newNo.setPort(Integer.parseInt(data[1]));
-    //newNo.setID(Integer.parseInt(data[2]));
-
+   
     return newNo;
   }
 
@@ -460,6 +457,8 @@ public class FilesClient {
    readFile("Zymosstics.txt");
  }
 
+ 
+ // Method for getting host address
  private static String getHostAddress(){
 	 try {
 		   InetAddress addr = InetAddress.getLocalHost();
@@ -468,6 +467,8 @@ public class FilesClient {
 			 return null;
 		 }
  }
+ 
+//RMI Method for writing files
 
  public static void writeFile(String FileName, String Contents){
 
@@ -501,7 +502,7 @@ public class FilesClient {
 			  System.out.println("write to File "+ FileName+" successful...");
 		   }
 		   else{
-			   System.out.println("write to File"+ FileName+" NOT successful...");
+			   System.out.println("write to File "+ FileName+" NOT successful...");
 		   }
 
 		   NodeTransport.close();
@@ -513,7 +514,9 @@ public class FilesClient {
 		  }
 
  }
-
+ 
+ 
+// RMI Method for reading files 
 public static void readFile(String FileName){
 
 	try {
@@ -538,7 +541,7 @@ public static void readFile(String FileName){
 		   TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
 		   NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
-		   System.out.println("File Content of "+FileName +"returned from the Client is "+nodeclient.Read(FileName));
+		   System.out.println("File Content of "+FileName +" returned from the Client is "+nodeclient.Read(FileName));
 
 
 		   NodeTransport.close();

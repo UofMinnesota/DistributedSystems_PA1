@@ -2,6 +2,8 @@ package project1;
 
 import java.util.ArrayList;
 
+// Class containing members and methods for finger table
+
 public class FingerTable {
 		
 	private int start;

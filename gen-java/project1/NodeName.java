@@ -4,6 +4,9 @@ package project1;
 import java.util.Collections;
 import java.util.Comparator;
 
+
+// NodeName class contains IP address, port and ID of the nodes
+
 public class NodeName implements Comparable<NodeName>{
 	
 	private String myIP;
