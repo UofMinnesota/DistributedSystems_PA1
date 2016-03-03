@@ -14,10 +14,6 @@ public class SuperNode {
    TServer server = new TSimpleServer(
      new Args(serverTransport).processor(processor));
 
-   // Use this for a multithreaded server
-   // TServer server = new TThreadPoolServer(new
-   // TThreadPoolServer.Args(serverTransport).processor(processor));
-
    System.out.println("Starting SuperNode...");
    server.serve();
   } catch (Exception e) {

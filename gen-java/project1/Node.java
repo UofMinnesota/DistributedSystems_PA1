@@ -19,6 +19,9 @@ import org.apache.thrift.TException;
 import java.util.ArrayList;
 import java.util.Random;
 
+
+//Node Class
+
 public class Node {
   public static int randInt(int min, int max) {
 
@@ -28,7 +31,7 @@ public class Node {
 
   return randomNum;
 }
-static boolean USE_LOCAL = true;
+static boolean USE_LOCAL = false;
  public static void StartsimpleServer(NodeService.Processor<NodeServiceHandler> processor) {
   try {
 
@@ -121,6 +124,4 @@ static boolean USE_LOCAL = true;
 
 
 }
-//Use this for a multithreaded server
-// TServer server = new TThreadPoolServer(new
-// TThreadPoolServer.Args(serverTransport).processor(processor));
+
