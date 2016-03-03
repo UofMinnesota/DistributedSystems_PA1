@@ -28,7 +28,7 @@ public class Node {
 
   return randomNum;
 }
-static boolean USE_LOCAL = false;
+static boolean USE_LOCAL = true;
  public static void StartsimpleServer(NodeService.Processor<NodeServiceHandler> processor) {
   try {
 
@@ -68,13 +68,13 @@ static boolean USE_LOCAL = false;
        NodeServiceHandler.setConfig(dht_list, getHostAddress(),nodePort);
        myName = NodeServiceHandler.getMyName();
        ListOfNodes = NodeServiceHandler.getListOfNodes();
-       
+
 
 	   //for 1 to n
 	   //send DHT request to other nodes
        for(int i=0;i<ListOfNodes.size();i++){
     	   if(!(ListOfNodes.get(i).getIP().equals(myName.getIP()) && ListOfNodes.get(i).getPort() == myName.getPort())){
-    		   
+
     		   System.out.println("Connecting to machine.."+ListOfNodes.get(i).getIP()+"..and port.."+ListOfNodes.get(i).getPort()+".. to update DHT");
     		   TTransport NodeTransport;
     		   NodeTransport = new TSocket(ListOfNodes.get(i).getIP(), ListOfNodes.get(i).getPort());
@@ -83,7 +83,7 @@ static boolean USE_LOCAL = false;
     		   NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
     		   nodeclient.UpdateDHT(dht_list);
     		   NodeTransport.close();
-    		   
+
     	   }
        }
 
