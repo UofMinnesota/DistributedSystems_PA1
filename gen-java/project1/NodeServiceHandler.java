@@ -44,7 +44,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   Map<String, String> files = new HashMap<String, String>();
   
   private static String DHTList;
-  private static int maxNumNodes = 8;
+  private static int maxNumNodes = 16;
   private static NodeName myName;
   private static NodeName predecessor;
   private static int m;
@@ -273,30 +273,92 @@ public int isSuccessor(int hash)
   //String NodeList = " ";
 
   int hash = keyHash(Filename);
-  System.out.println("Filename is"+Filename);
+  boolean writeComplete=false;
+  
+  System.out.println("Request for writing Filename "+Filename+"to this node...");
+  
+  System.out.println("My ID is.."+myName.getID()+" and my Predecessor in the DHT is.."+predecessor.getID()+" and the key of this file is.."+hash);
+  
+  if(myName.getID() < predecessor.getID()){ //my ID can be 2 and predecessor ID can be 6
+	  if(hash > predecessor.getID() || hash <= myName.getID()){
+		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
+		  files.put(Filename, Contents);
+		  writeComplete = true;
+		  return writeComplete;
+	  }
+  }
+  
+  if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
+	  if(hash > predecessor.getID() && hash <= myName.getID()){
+		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
+		  files.put(Filename, Contents);
+		  writeComplete = true;
+		  return writeComplete;
+	  }
+  }
+  
+  
+  
+  //int succ = isSuccessor(hash);
+  //if(succ == -1)
+  //{
+  //  files.put(Filename, Contents);
 
-  int succ = isSuccessor(hash);
-  if(succ == -1)
+  //  return true;
+  //}
+  
+  //If the key is not in-between predecessor and me forward the write to fingertable
+  System.out.println("File does not belong to me..Forwarding to a successor...");
+  
+  if(writeComplete == false)
   {
-    files.put(Filename, Contents);
+    
+	for(int i=1;i<=m;i++){
+		
+		System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
+		
+	if(myName.getID() < predecessor.getID()){
+		if(hash>=fingerTable[i].getStart() || hash<=fingerTable[i].getSuccessor().getID()){
+			TTransport NodeTransport;
+			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+		    NodeTransport.open();
 
-    return true;
+		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+		    boolean returnVal = nodeclient.Write(Filename, Contents);
+		    
+		    NodeTransport.close();
+		    
+		    return returnVal;
+		}
+	  }
+	
+	if(myName.getID() >= predecessor.getID()){
+		if(hash>=fingerTable[i].getStart() && hash<=fingerTable[i].getSuccessor().getID()){
+			TTransport NodeTransport;
+			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+		    NodeTransport.open();
+
+		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+		    boolean returnVal = nodeclient.Write(Filename, Contents);
+		    
+		    NodeTransport.close();
+		    
+		    return returnVal;
+		}
+	  }
+	}  
+	  
   }
-  else{
 
-
-    TTransport NodeTransport;
-    NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
-    NodeTransport.open();
-
-    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
-
-    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
-
-    return nodeclient.Write(Filename, Contents);
-  }
-
-  //return false;
+  return false;
  }
 
  @Override
@@ -304,29 +366,86 @@ public int isSuccessor(int hash)
    //String NodeList = " ";
 
    int hash = keyHash(Filename);
-   System.out.println("Filename is"+Filename);
+   //System.out.println("Filename is "+Filename);
+   boolean readComplete=false;
+   
+   System.out.println("Request for reading Filename "+Filename+"to this node...");
+   
+   System.out.println("My ID is.."+myName.getID()+" and my Predecessor in the DHT is.."+predecessor.getID()+" and the key of this file is.."+hash);
+   
+   if(myName.getID() < predecessor.getID()){ //my ID can be 2 and predecessor ID can be 6
+ 	  if(hash > predecessor.getID() || hash <= myName.getID()){
+ 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
+ 		  //files.put(Filename, Contents);
+ 		  readComplete = true;
+ 		  //return writeComplete;
+ 		 return (files.get(Filename));
+ 	  }
+   }
+   
+   if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
+ 	  if(hash > predecessor.getID() && hash <= myName.getID()){
+ 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
+ 		  //files.put(Filename, Contents);
+ 		  readComplete = true;
+ 		  //return writeComplete;
+ 		 return (files.get(Filename));
+ 	  }
+   }
 
-   int succ = isSuccessor(hash);
-   if(succ == -1)
+   
+ //If the key is not in-between predecessor and me forward the write to fingertable
+   System.out.println("File does not belong to me..Forwarding to a successor...");
+   
+   if(readComplete == false)
    {
-     //read locally
-     return (files.get(Filename));
+     
+ 	for(int i=1;i<=m;i++){
+ 		
+ 		System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
+ 	if(myName.getID() < predecessor.getID()){ 
+ 		if(hash>=fingerTable[i].getStart() || hash<=fingerTable[i].getSuccessor().getID()){
+ 			TTransport NodeTransport;
+ 			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+ 		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+ 		    NodeTransport.open();
+
+ 		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+ 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+ 		     
+ 		   String readVal = nodeclient.Read(Filename);
+ 		   
+ 		    NodeTransport.close();
+ 		    
+ 		    return readVal;
+ 		}
+ 	}
+ 	
+	if(myName.getID() >= predecessor.getID()){ 
+ 		if(hash>=fingerTable[i].getStart() && hash<=fingerTable[i].getSuccessor().getID()){
+ 			TTransport NodeTransport;
+ 			System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
+ 		    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
+ 		    NodeTransport.open();
+
+ 		    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
+
+ 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
+
+ 		     
+ 		   String readVal = nodeclient.Read(Filename);
+ 		   
+ 		    NodeTransport.close();
+ 		    
+ 		    return readVal;
+ 		}
+ 	}
+   }  
+ 	  
    }
-   else{
-
-
-     TTransport NodeTransport;
-     NodeTransport = new TSocket("localhost", 9090); //map nodes in the ports
-     NodeTransport.open();
-
-     TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
-
-     NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
-
-     return nodeclient.Read(Filename);
-   }
-
-   //return false;
+   return "File not Found..";
  }
 
  @Override
@@ -342,7 +461,7 @@ public int isSuccessor(int hash)
 	 
 
 
-  return false;
+  return true;
  }
  
 
