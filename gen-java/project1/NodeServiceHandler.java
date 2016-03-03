@@ -31,18 +31,18 @@ public class NodeServiceHandler implements NodeService.Iface {
     String address = "";
     int port = 0;
     int hash = 0;
-    
- 
+
+
     public int compareTo(NodeInfo N) {
         return Integer.compare(hash, N.hash);
     }
 
-    
+
   }
 
   private static ArrayList<NodeName> ListOfNodes = new ArrayList<NodeName>();
   private static Map<String, String> files = new HashMap<String, String>();
-  
+
   private static String DHTList;
   private static int maxNumNodes = 16;
   private static NodeName myName;
@@ -51,16 +51,22 @@ public class NodeServiceHandler implements NodeService.Iface {
   private static FingerTable[] fingerTable;
   private static int numDHT;
   private Random randomGenerator = new Random();
-  
+
   public static ArrayList<NodeName> getListOfNodes(){
-	  
+
 	  return ListOfNodes;
   }
-  
+
+  public NodeServiceHandler(int max)
+  {
+    if(max == -1) return;
+    maxNumNodes = max;
+  }
+
   public static NodeName getMyName(){
 	  return myName;
   }
-  
+
   public static int getNumberOfFiles()
   {
     return files.size();
@@ -99,38 +105,38 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  System.out.println("1Entering setConfig of service handler...");
 	  DHTList = dht_list;
 	  ListOfNodes = strToNodeNameArray(DHTList);
-	  
+
 	  myName = new NodeName(address, port, 0);
 	  predecessor = new NodeName("NA", -1, -1);
-	  
+
 	  //myName.setIP(address);
 	  //myName.setPort(port);
-	  
+
 	  System.out.println("2Entering setConfig of service handler...");
-	  
+
 	  myName.setID(findmyID(ListOfNodes));
-	  
-	  
+
+
 	  //updating fingertable related values
 	  m = (int) Math.ceil(Math.log(maxNumNodes) / Math.log(2));
 	  System.out.println("Value of m is "+ m);
       fingerTable = new FingerTable[m+1];
       numDHT = (int)Math.pow(2,m);
-      
+
       findPredecessor();
       buildFingerTable();
-      
+
       printFingerTable();
-      
-      
-      
+
+
+
   }
-  
+
   private static int findmyID(ArrayList<NodeName> nodeList){
-	  
+
 	  int ID=-1;
-	  //NodeName temp_node; 
-	  
+	  //NodeName temp_node;
+
 	  for(int i=0; i< nodeList.size(); i++){
 		  System.out.println("iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort() + " answer is " + nodeList.get(i).getIP().compareTo(myName.getIP()));
 		  if((myName.getPort() == nodeList.get(i).getPort()) && nodeList.get(i).getIP().equals(myName.getIP())){
@@ -141,23 +147,23 @@ public class NodeServiceHandler implements NodeService.Iface {
 		  else{
 			  System.out.println("else iterating over the list..."+ nodeList.get(i).getIP() + " " +nodeList.get(i).getPort() + " " + nodeList.get(i).getID() + " " + myName.getIP() + " " + myName.getPort());
 		  }
-		  
+
 	  }
-	  
+
 	  return ID;
-	  
+
   }
-  
+
   private static void findPredecessor(){
-	    
+
 	  System.out.println("My ID is before sort in findPredecessor.."+myName.getID());
 	  Collections.sort(ListOfNodes);
 	  System.out.println("My ID is after sort in findPredecessor.."+myName.getID());
-	  
+
 	  for(int i=0;i<ListOfNodes.size();i++){
 		  System.out.println("Array list sorted is " + ListOfNodes.get(i).getIP() + " " +ListOfNodes.get(i).getPort() + " " + ListOfNodes.get(i).getID() + " ");
 	  }
-	  
+
 	  //If there is only one node to the system the predecessor is the same node
 	  if(ListOfNodes.size() == 1){
 		  System.out.println("Only one node in the system...");
@@ -165,9 +171,9 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  }
 	  //If there are multiple nodes, then predecessor is the previous element in the array
 	  else{
-		  
+
 		  int myLocation=0;
-		  
+
 		  for(int i=0;i<ListOfNodes.size();i++){
 			  if((myName.getPort() == ListOfNodes.get(i).getPort()) && ListOfNodes.get(i).getIP().equals(myName.getIP()) && (myName.getID() == ListOfNodes.get(i).getID())){
 				  System.out.println("Found the ID...");
@@ -175,9 +181,9 @@ public class NodeServiceHandler implements NodeService.Iface {
 				  break;
 			  }
 		  }
-		  
+
 		  System.out.println("My ID is.."+myName.getID());
-		  
+
 		  if(myLocation == 0){
 			  predecessor = new NodeName(ListOfNodes.get(ListOfNodes.size()-1).getIP(), ListOfNodes.get(ListOfNodes.size()-1).getPort(), ListOfNodes.get(ListOfNodes.size()-1).getID());
 			  //predecessor.setID(ListOfNodes.get(ListOfNodes.size()-1).getID());
@@ -194,36 +200,36 @@ public class NodeServiceHandler implements NodeService.Iface {
 			  //predecessor.setID(ListOfNodes.get(myLocation-1).getID());
 			  //predecessor.setPort(ListOfNodes.get(myLocation-1).getPort());
 		  }
-		  
+
 	  }
-	  
+
 	  System.out.println("My ID is.."+myName.getID());
-	  
+
   }
-  
+
   private static void buildFingerTable(){
-	  
+
 	  System.out.println("My ID is.."+myName.getID());
-	  
+
 	  Collections.sort(ListOfNodes);
-	  
+
 	  for(int i = 1; i <= m ; i++){
 		  fingerTable[i] = new FingerTable();
 		  fingerTable[i].setStart((myName.getID() + (int)Math.pow(2,i-1)) % numDHT);
-		  
+
 		  System.out.println("My Start Value is "+fingerTable[i].getStart()+" my ID is.."+ myName.getID());
 	  }
-	  
+
 	  int intEnd ;
 	  for (int i = 1; i < m; i++) {
 		  intEnd = (fingerTable[i+1].getStart()-1)%numDHT;
 		  if(intEnd<0){intEnd=intEnd+numDHT;}
-          fingerTable[i].setInterval(fingerTable[i].getStart(),intEnd); 
+          fingerTable[i].setInterval(fingerTable[i].getStart(),intEnd);
       }
 	  intEnd = (fingerTable[1].getStart()-1)%numDHT;
 	  if(intEnd<0){intEnd=intEnd+numDHT;}
       fingerTable[m].setInterval(fingerTable[m].getStart(),intEnd);
-	  
+
       if (predecessor.getID() == myName.getID()) { //if predecessor is same as my ID -> only node in DHT
           for (int i = 1; i <= m; i++) {
               fingerTable[i].setSuccessor(myName);
@@ -235,12 +241,12 @@ public class NodeServiceHandler implements NodeService.Iface {
               fingerTable[i].findSuccessor(myName, ListOfNodes, numDHT);
           }
       }
-      
+
       System.out.println("My ID is.."+myName.getID());
   }
-  
+
   public static void printFingerTable(){
-	  
+
 	  System.out.println("Node ID is "+myName.getID());
 	  System.out.println("Range of Keys: " + (predecessor.getID()+1)%numDHT + " - " + myName.getID());
 	  System.out.println("Predecessor Node: "+predecessor.getIP()+":"+predecessor.getPort()+":"+predecessor.getID());
@@ -253,13 +259,13 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  System.out.println("Finger Table after the update:");
 	  System.out.println("  |  "+"Start"+"  |  "+"Interval Begin"+"  |  "+"Interval End"+"  |  "+"Successor"+"  |  ");
 	  for(int i = 1; i <= m ; i++){
-		  
+
 		System.out.println("      |      "+fingerTable[i].getStart()+"      |      "+fingerTable[i].getIntervalBegin()+"      |      "+fingerTable[i].getIntervalEnd()+"      |      "+fingerTable[i].getSuccessor().getID()+"      |      ");
 	  }
-	  
+
   }
-  
-  
+
+
   public static NodeName strToNodeName(String input)
   {
     String data[] = input.split(":");
@@ -309,11 +315,11 @@ public int isSuccessor(int hash)
 
   int hash = keyHash(Filename);
   boolean writeComplete=false;
-  
+
   System.out.println("Request for writing Filename "+Filename+"to this node...");
-  
+
   System.out.println("My ID is.."+myName.getID()+" and my Predecessor in the DHT is.."+predecessor.getID()+" and the key of this file is.."+hash);
-  
+
   if(myName.getID() < predecessor.getID()){ //my ID can be 2 and predecessor ID can be 6
 	  if(hash > predecessor.getID() || hash <= myName.getID()){
 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
@@ -324,7 +330,7 @@ public int isSuccessor(int hash)
 		  return writeComplete;
 	  }
   }
-  
+
   if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
 	  if(hash > predecessor.getID() && hash <= myName.getID()){
 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
@@ -335,9 +341,9 @@ public int isSuccessor(int hash)
 		  return writeComplete;
 	  }
   }
-  
-  
-  
+
+
+
   //int succ = isSuccessor(hash);
   //if(succ == -1)
   //{
@@ -345,16 +351,16 @@ public int isSuccessor(int hash)
 
   //  return true;
   //}
-  
+
   //If the key is not in-between predecessor and me forward the write to fingertable
   System.out.println("File does not belong to me..Forwarding to a successor...");
-  
+
   if(writeComplete == false)
   {
-    
+
 	  for(int i=m;i>=1;i--){
 		  System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
-		  
+
 		  if(((fingerTable[i].getIntervalBegin()>fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() || hash<=fingerTable[i].getIntervalEnd())) ||
 				  ((fingerTable[i].getIntervalBegin()<=fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() && hash<=fingerTable[i].getIntervalEnd()))){
 			  	TTransport NodeTransport;
@@ -367,14 +373,14 @@ public int isSuccessor(int hash)
 			    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
 			    boolean returnVal = nodeclient.Write(Filename, Contents);
-			    
+
 			    NodeTransport.close();
-			    
+
 			    return returnVal;
 		  }
-		    
+
 	  }
-	  
+
 	  if(hash>fingerTable[m].getSuccessor().getID()){
 		  	TTransport NodeTransport;
 			System.out.println("Request forwarded to.." +fingerTable[m].getSuccessor().getIP()+" "+fingerTable[m].getSuccessor().getPort()+ " "+fingerTable[m].getSuccessor().getID() );
@@ -386,11 +392,11 @@ public int isSuccessor(int hash)
 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
 		    boolean returnVal = nodeclient.Write(Filename, Contents);
-		    
+
 		    NodeTransport.close();
-		    
+
 		    return returnVal;
-	  }  
+	  }
   }
 
   return false;
@@ -403,11 +409,11 @@ public int isSuccessor(int hash)
    int hash = keyHash(Filename);
    //System.out.println("Filename is "+Filename);
    boolean readComplete=false;
-   
+
    System.out.println("Request for reading Filename "+Filename+"to this node...");
-   
+
    System.out.println("My ID is.."+myName.getID()+" and my Predecessor in the DHT is.."+predecessor.getID()+" and the key of this file is.."+hash);
-   
+
    if(myName.getID() < predecessor.getID()){ //my ID can be 2 and predecessor ID can be 6
  	  if(hash > predecessor.getID() || hash <= myName.getID()){
  		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
@@ -420,7 +426,7 @@ public int isSuccessor(int hash)
       return "*** FILE NOT FOUND ***";
  	  }
    }
-   
+
    if(myName.getID() >= predecessor.getID()){ //my ID can be 3 predecessor can be 0
  	  if(hash > predecessor.getID() && hash <= myName.getID()){
  		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
@@ -434,38 +440,38 @@ public int isSuccessor(int hash)
  	  }
    }
 
-   
+
  //If the key is not in-between predecessor and me forward the write to fingertable
    System.out.println("File does not belong to me..Forwarding to a successor...");
-   
+
    if(readComplete == false)
    {
-     
+
 		  for(int i=m;i>=1;i--){
 			  System.out.println("Iterating to ID "+fingerTable[i].getSuccessor().getID());
-			  
+
 			  if(((fingerTable[i].getIntervalBegin()>fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() || hash<=fingerTable[i].getIntervalEnd())) ||
 					  ((fingerTable[i].getIntervalBegin()<=fingerTable[i].getIntervalEnd())&& (hash>=fingerTable[i].getIntervalBegin() && hash<=fingerTable[i].getIntervalEnd()))){
 				  	TTransport NodeTransport;
 					System.out.println("Request forwarded to.." +fingerTable[i].getSuccessor().getIP()+" "+fingerTable[i].getSuccessor().getPort()+ " "+fingerTable[i].getSuccessor().getID() );
 				    NodeTransport = new TSocket(fingerTable[i].getSuccessor().getIP(), fingerTable[i].getSuccessor().getPort()); //map nodes in the ports
 				    NodeTransport.open();
-				    
+
 				    TProtocol NodeProtocol = new TBinaryProtocol(NodeTransport);
 
 		 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
-		 		     
+
 		 		   String readVal = nodeclient.Read(Filename);
-		 		   
+
 		 		    NodeTransport.close();
-		 		    
+
 		 		    return readVal;
-			
+
 			  }
-			    
+
 		  }
-		  
+
 		  if(hash>fingerTable[m].getSuccessor().getID()){
 			  	TTransport NodeTransport;
 				System.out.println("Request forwarded to.." +fingerTable[m].getSuccessor().getIP()+" "+fingerTable[m].getSuccessor().getPort()+ " "+fingerTable[m].getSuccessor().getID() );
@@ -476,21 +482,21 @@ public int isSuccessor(int hash)
 
 	 		    NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
-	 		     
+
 	 		   String readVal = nodeclient.Read(Filename);
-	 		   
+
 	 		    NodeTransport.close();
-	 		    
+
 	 		    return readVal;
-		  } 
-	   
+		  }
+
    }
    return "File not Found..";
  }
 
  @Override
  public boolean UpdateDHT(String NodeList) throws TException {
-	 
+
 	 System.out.println("A new node has joined the network. Updating the finger table...");
 	 System.out.println("My ID is.."+myName.getID());
 	 DHTList=NodeList;
@@ -498,11 +504,11 @@ public int isSuccessor(int hash)
      findPredecessor();
      buildFingerTable();
      printFingerTable();
-	 
+
 
 
   return true;
  }
- 
+
 
 }

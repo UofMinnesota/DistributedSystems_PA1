@@ -31,37 +31,45 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
           n = (int)key.charAt(i);
           u += i*n%31;
       }
-      
+
       return u%max_keys;
+  }
+
+
+  public SuperNodeServiceHandler(int max)
+  {
+    if(max == -1) return;
+    max_keys = max;
+    num_keys = max;
   }
 
  @Override
  public String Join(String IP, int Port) throws TException {
-  
 
-	 
+
+
 	 System.out.println("Node "+ IP+" : "+Port+" requests for joining DHT...");
   if(isBusy)
   {
     return "NACK";
   }
   String NodeList = " ";
-  
+
   if(num_keys > 0)
   {
 	   NodeInfo newNode = new NodeInfo();
 	   newNode.address = IP;
 	   newNode.port = Port;
-	   
+
 	   int myID = keyHash(IP+":"+String.valueOf(Port));
-	   
+
 	   if(ListOfID.contains(myID)){
 		   Collections.sort(ListOfID);
 		   myID = (ListOfID.get(ListOfID.size()-1) + 1)%max_keys;
 	   }
-	   
+
 	   newNode.hash = myID;
-	   
+
 	   ListOfID.add(newNode.hash);
 
 	   ListOfNodes.add(newNode);
@@ -77,7 +85,7 @@ public class SuperNodeServiceHandler implements SuperNodeService.Iface {
 	  return NodeList;
   }
   else{
-	  
+
 	  System.out.println("Max number of nodes reached in DHT ....");
 	  return "NACK";
   }

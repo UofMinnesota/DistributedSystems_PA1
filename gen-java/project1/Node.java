@@ -101,7 +101,12 @@ static boolean USE_LOCAL = true;
  }
 
  public static void main(String[] args) {
-  StartsimpleServer(new NodeService.Processor<NodeServiceHandler>(new NodeServiceHandler()));
+   int mode = -1;
+   if(args.length != 0)
+   {
+     mode = Integer.parseInt(args[0]);
+   }
+  StartsimpleServer(new NodeService.Processor<NodeServiceHandler>(new NodeServiceHandler(mode)));
  }
 
  private static String getHostAddress(){
