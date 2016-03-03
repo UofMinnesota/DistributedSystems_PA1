@@ -41,7 +41,7 @@ public class NodeServiceHandler implements NodeService.Iface {
   }
 
   private static ArrayList<NodeName> ListOfNodes = new ArrayList<NodeName>();
-  Map<String, String> files = new HashMap<String, String>();
+  private static Map<String, String> files = new HashMap<String, String>();
   
   private static String DHTList;
   private static int maxNumNodes = 16;
@@ -61,6 +61,26 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  return myName;
   }
   
+  public static int getNumberOfFiles()
+  {
+    return files.size();
+  }
+
+  public static ArrayList<String> getFileNames()
+  {
+    ArrayList<String> filesArr = new ArrayList<String>();
+    for (String name: files.keySet()){
+
+            String key =name.toString();
+            String value = files.get(name).toString();
+            //System.out.println(key);
+            filesArr.add(key);
+
+
+
+          }
+    return filesArr;
+  }
 
   int keyHash(String key)
   {
@@ -225,8 +245,11 @@ public class NodeServiceHandler implements NodeService.Iface {
 	  System.out.println("Range of Keys: " + (predecessor.getID()+1)%numDHT + " - " + myName.getID());
 	  System.out.println("Predecessor Node: "+predecessor.getIP()+":"+predecessor.getPort()+":"+predecessor.getID());
 	  System.out.println("Successor Node: "+fingerTable[1].getSuccessor().getIP()+":"+fingerTable[1].getSuccessor().getPort()+":"+fingerTable[1].getSuccessor().getID());
-	  System.out.println("Number of Files Stored:");
+	  System.out.println("Number of Files Stored:"+getNumberOfFiles());
 	  System.out.println("List of Files Stored:");
+	  for(int i =0; i<getFileNames().size();i++){
+		  System.out.println(getFileNames().get(i));
+	  }
 	  System.out.println("Finger Table after the update:");
 	  System.out.println("  |  "+"Start"+"  |  "+"Interval Begin"+"  |  "+"Interval End"+"  |  "+"Successor"+"  |  ");
 	  for(int i = 1; i <= m ; i++){
@@ -306,6 +329,8 @@ public int isSuccessor(int hash)
 	  if(hash > predecessor.getID() && hash <= myName.getID()){
 		  System.out.println("This file "+ Filename+ " with ID "+hash+"belongs to me..");
 		  files.put(Filename, Contents);
+		  System.out.println("File: "+ Filename+ " has been added to this node. Node Details after file addition:");
+		  printFingerTable();
 		  writeComplete = true;
 		  return writeComplete;
 	  }
@@ -389,7 +414,10 @@ public int isSuccessor(int hash)
  		  //files.put(Filename, Contents);
  		  readComplete = true;
  		  //return writeComplete;
- 		 return (files.get(Filename));
+ 		 System.out.println("File: "+ Filename+ " was tried to read this node. Node Details after file addition:");
+		  printFingerTable();
+      if(files.containsKey(Filename)) return (files.get(Filename));
+      return "*** FILE NOT FOUND ***";
  	  }
    }
    
@@ -399,7 +427,10 @@ public int isSuccessor(int hash)
  		  //files.put(Filename, Contents);
  		  readComplete = true;
  		  //return writeComplete;
- 		 return (files.get(Filename));
+ 		 System.out.println("File: "+ Filename+ " was tried to read this node. Node Details after file addition:");
+		  printFingerTable();
+      if(files.containsKey(Filename)) return (files.get(Filename));
+      return "*** FILE NOT FOUND ***";
  	  }
    }
 
