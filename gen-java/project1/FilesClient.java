@@ -55,7 +55,7 @@ public class FilesClient {
 
  public static void main(String[] args) {
 
-	 
+
 	 writeFile("ABC","ABC");
 	 writeFile("XXX","XXX");
 	 writeFile("TED","TED");
@@ -255,8 +255,8 @@ public class FilesClient {
 	 writeFile("Winsome.txt","Winsome.txt");
 	 writeFile("Zealous.txt","Zealous.txt");
 	 writeFile("Zymotic.txt","Zymotic.txt");
-	 
-	 
+
+
 	 readFile("TED");
 	 readFile("XXX");
 	 readFile("ABC");
@@ -457,7 +457,7 @@ public class FilesClient {
 	 readFile("Zealous.txt");
 	 readFile("Zymotic.txt");
 
- 
+   readFile("Zymosstics.txt");
  }
 
  private static String getHostAddress(){
@@ -468,27 +468,27 @@ public class FilesClient {
 			 return null;
 		 }
  }
- 
+
  public static void writeFile(String FileName, String Contents){
-	 
+
 	  try {
-		  
+
 		   TTransport SuperNodeTransport;
-		   
-		   
+
+
 		   String supernodeAddr = "csel-x29-10";
 		   if(USE_LOCAL) supernodeAddr = "localhost";
 		   SuperNodeTransport = new TSocket(supernodeAddr, 9090); // csel-x29-10
 		   SuperNodeTransport.open();
 
-		   
-		   
+
+
 		   TProtocol SuperNodeProtocol = new TBinaryProtocol(SuperNodeTransport);
 		   SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
 		   NodeName ndi = strToNodeName(supernodeclient.GetNode());
 		   SuperNodeTransport.close();
-		   
-		   
+
+
 		   TTransport NodeTransport;
 		   System.out.println("Connecting to: " + ndi.getIP() + ":" + ndi.getPort()+":"+ ndi.getID());
 		   NodeTransport = new TSocket(ndi.getIP(), ndi.getPort());
@@ -503,22 +503,22 @@ public class FilesClient {
 		   else{
 			   System.out.println("write to File"+ FileName+" NOT successful...");
 		   }
-		   
+
 		   NodeTransport.close();
-		   
-		   
+
+
 		  }
 		  catch (TException x) {
 		   x.printStackTrace();
 		  }
-	 
+
  }
- 
+
 public static void readFile(String FileName){
-	
+
 	try {
 		   TTransport SuperNodeTransport;
-		   
+
 		   String supernodeAddr = "csel-x29-10";
 		   if(USE_LOCAL) supernodeAddr = "localhost";
 		   SuperNodeTransport = new TSocket(supernodeAddr, 9090); // csel-x29-10
@@ -528,9 +528,9 @@ public static void readFile(String FileName){
 		   SuperNodeService.Client supernodeclient = new SuperNodeService.Client(SuperNodeProtocol);
 		   NodeName ndi = strToNodeName(supernodeclient.GetNode());
 		   SuperNodeTransport.close();
-		   
+
 		   System.out.println("Connecting to: " + ndi.getIP() + ":" + ndi.getPort()+":"+ndi.getID());
-		   
+
 		   TTransport NodeTransport;
 		   NodeTransport = new TSocket(ndi.getIP(), ndi.getPort());
 		   NodeTransport.open();
@@ -539,8 +539,8 @@ public static void readFile(String FileName){
 		   NodeService.Client nodeclient = new NodeService.Client(NodeProtocol);
 
 		   System.out.println("File Content of "+FileName +"returned from the Client is "+nodeclient.Read(FileName));
-		   
-		   
+
+
 		   NodeTransport.close();
 
 		  }
@@ -549,6 +549,3 @@ public static void readFile(String FileName){
 		  }
 		 }
 }
-	 
-
-
