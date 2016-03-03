@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class FilesClient {
-  static boolean USE_LOCAL = true;
+  static boolean USE_LOCAL = false;
 
   public static class  NodeInfo implements Comparable<NodeInfo>{
     String address = "";
